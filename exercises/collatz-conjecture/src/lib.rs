@@ -1,6 +1,18 @@
 pub fn collatz(n: u64) -> Option<u64> {
-    unimplemented!(
-        "return Some(x) where x is the number of steps required to reach 1 starting with {}",
-        n,
-    )
+    if n== 0 {
+        return None;
+    }
+    let mut bz = 0;
+    let mut va = n;
+    loop {
+        if  va == 1{
+            return Some(bz);
+        }
+        if va %2 == 0 {
+            va /= 2;
+        }else {
+            va = va * 3 + 1;
+        }
+        bz += 1;
+    }
 }

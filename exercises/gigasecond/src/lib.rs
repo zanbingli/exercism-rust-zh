@@ -1,7 +1,9 @@
 extern crate chrono;
-use chrono::{DateTime, Utc};
+
+use std::ops::Add;
+use chrono::{DateTime, Duration, Utc};
 
 // Returns a Utc DateTime one billion seconds after start.
 pub fn after(start: DateTime<Utc>) -> DateTime<Utc> {
-    unimplemented!("What time is a gigasecond later than {}", start);
+    start.add(Duration::seconds(1000000000))
 }

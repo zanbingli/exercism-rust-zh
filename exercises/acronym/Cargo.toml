@@ -3,3 +3,4 @@ name = "acronym"
 version = "1.0.0"
 
 [dependencies]
+Inflector = "0.11.4"

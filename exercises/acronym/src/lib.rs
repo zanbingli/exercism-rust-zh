@@ -1,3 +1,7 @@
+
+extern crate inflector;
+use inflector::Inflector;
+
 pub fn abbreviate(phrase: &str) -> String {
-    unimplemented!("Given the phrase '{}', return its acronym", phrase);
+    phrase.to_title_case().chars().filter(|x|x.is_ascii_uppercase()).collect()
 }
