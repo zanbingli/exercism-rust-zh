@@ -6,5 +6,12 @@ pub enum Classification {
 }
 
 pub fn classify(num: u64) -> Option<Classification> {
-    unimplemented!("classify {}", num);
+    let sm = (1..num).filter(|x| num % x == 0).sum::<u64>();
+    return if sm == num {
+        Some(Classification::Perfect)
+    } else if sm > num {
+        Some(Classification::Abundant)
+    } else {
+        Some(Classification::Deficient)
+    };
 }
