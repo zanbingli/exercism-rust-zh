@@ -1,16 +1,23 @@
-pub struct School {}
+use std::collections::{BTreeMap, BTreeSet};
+
+pub struct School {
+    students: BTreeMap<u32, BTreeSet<String>>,
+}
 
 impl School {
     pub fn new() -> School {
-        unimplemented!()
+        School {
+            students: BTreeMap::new(),
+        }
     }
 
     pub fn add(&mut self, grade: u32, student: &str) {
-        unimplemented!("Add {} to the roster for {}", student, grade)
+        self.students.entry(grade).or_insert(BTreeSet::new());
+        self.students.get_mut(&grade).unwrap().insert(student.to_string());
     }
 
     pub fn grades(&self) -> Vec<u32> {
-        unimplemented!()
+        self.students.keys().map(|&x| x).collect()
     }
 
     // If grade returned an `Option<&Vec<String>>`,
@@ -18,6 +25,9 @@ impl School {
     // By returning an owned vector instead,
     // the internal implementation is free to use whatever it chooses.
     pub fn grade(&self, grade: u32) -> Option<Vec<String>> {
-        unimplemented!("Return the list of students in {}", grade)
+        if let Some(t) = self.students.get(&grade) {
+            return Some(t.iter().map(|x|x.clone()).collect());
+        }
+        None
     }
 }
