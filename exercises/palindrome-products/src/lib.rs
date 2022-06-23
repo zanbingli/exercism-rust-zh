@@ -1,22 +1,24 @@
+
+
 pub type Palindrome = u64;
+
 pub fn get_palindrome_products(min: u64, max: u64) -> Vec<Palindrome> {
-    unimplemented!(
-        "Find all palindromic numbers which are products of numbers in the inclusive range ({}..{})",
-        min,
-        max
-    )
+    (min..=max).map(|x|{
+        (min..=max).map(|x2|(x,x2)).collect::<Vec<(u64,u64)>>()
+    }).flatten()
+        .map(|v| v.0 * v.1)
+        .filter(|x| is_palindromes(x))
+        .collect()
 }
 
 pub fn min(palindromes: &[Palindrome]) -> Option<Palindrome> {
-    unimplemented!(
-        "Return the palindrome of minimal value from the supplied list: {:?}",
-        palindromes
-    )
+    palindromes.iter().min().map(|x|x.clone())
 }
 
 pub fn max(palindromes: &[Palindrome]) -> Option<Palindrome> {
-    unimplemented!(
-        "Return the palindrome of maximal value from the supplied list: {:?}",
-        palindromes
-    )
+    palindromes.iter().max().map(|x|x.clone())
+}
+
+fn is_palindromes(n: &Palindrome) -> bool {
+    n.to_string().eq(&n.to_string().chars().rev().collect::<String>())
 }

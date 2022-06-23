@@ -1,3 +1,6 @@
 [package]
 name = "alphametics"
 version = "1.0.0"
+
+[dependencies]
+itertools = "0.10.3"
