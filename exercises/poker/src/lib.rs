@@ -35,11 +35,14 @@ pub enum PorkType {
 
 impl<'a> PartialOrd for Pork<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        let rank_a = get_rank(&get_seq(&self.value));
-        let rank_b = get_rank(&get_seq(&other.value));
+        let mut source1 = get_seq(&self.value);
+        let mut source2 = get_seq(&other.value);
+        //获取牌型的时候把1和A区分开
+        let rank_a = get_rank(&mut source1);
+        let rank_b = get_rank(&mut source2);
         //牌型相同比大小
         return if rank_a == rank_b {
-            Some(cmp_num(&get_seq(&self.value), &get_seq(&other.value), &rank_a))
+            Some(cmp_num(&source1, &source2, &rank_a))
         } else {
             //牌型不同比牌型
             return Some(rank_b.cmp(&rank_a));
@@ -98,7 +101,7 @@ fn get_num(s: &str) -> (usize, usize) {
     (0, 0)
 }
 
-fn get_rank(vec: &Vec<(usize, usize)>) -> PorkType {
+fn get_rank(vec: &mut Vec<(usize, usize)>) -> PorkType {
     return if is_straight_flush(vec) {
         PorkType::StraightFlush
     } else if is_four_of_a_kind(vec) {
@@ -164,24 +167,28 @@ fn append_pair(v1: &Vec<usize>, i: usize, tar: &mut Vec<usize>) {
 }
 
 fn get_type_score(vec: &Vec<usize>) -> usize {
-    vec.iter().fold(0, |acc, v| if v == &1_usize { acc * 10 + 13 } else { acc * 10 + v })
+    vec.iter().fold(0, |acc, v| acc * 10 + v)
 }
 
-fn is_straight_flush(vec: &Vec<(usize, usize)>) -> bool {
+fn is_straight_flush(vec: &mut Vec<(usize, usize)>) -> bool {
     return is_flush(vec) && is_straight(vec);
 }
 
-fn is_four_of_a_kind(vec: &Vec<(usize, usize)>) -> bool {
-    let v1: Vec<usize> = vec.iter().map(|(x, _y)| *x).collect();
-    for i in v1.iter() {
-        if v1.iter().filter(|&x| x == i).count() == 4 {
+fn is_four_of_a_kind(vec: &mut Vec<(usize, usize)>) -> bool {
+    for (i,_v) in vec.iter() {
+        if vec.iter().filter(|&x| x.0 == *i).count() == 4 {
+            for i in vec.iter_mut() {
+                if i.0 == 1_usize {
+                    *i = (14,i.1);
+                }
+            }
             return true;
         }
     }
     false
 }
 
-fn is_full_house(vec: &Vec<(usize, usize)>) -> bool {
+fn is_full_house(vec: &mut Vec<(usize, usize)>) -> bool {
     let v1: Vec<usize> = vec.iter().map(|(x, _y)| *x).collect();
     let mut rt: (bool, bool) = (false, false);
     for i in v1.iter() {
@@ -192,17 +199,31 @@ fn is_full_house(vec: &Vec<(usize, usize)>) -> bool {
             rt.1 = true;
         }
     }
+    if rt.0&&rt.1 {
+        for i in vec.iter_mut() {
+            if i.0 == 1_usize {
+                *i = (14,i.1);
+            }
+        }
+    }
     rt.0 && rt.1
 }
 
-fn is_flush(vec: &Vec<(usize, usize)>) -> bool {
+fn is_flush(vec: &mut Vec<(usize, usize)>) -> bool {
     if let Some((_a, b)) = vec.first() {
-        return !vec.iter().any(|(_x, y)| y != b);
+        if !vec.iter().any(|(_x, y)| y != b){
+            for i in vec.iter_mut() {
+                if i.0 == 1_usize {
+                    *i = (14,i.1);
+                }
+            }
+            return true;
+        }
     }
     false
 }
 
-fn is_straight(vec: &Vec<(usize, usize)>) -> bool {
+fn is_straight(vec: &mut Vec<(usize, usize)>) -> bool {
     let mut v1: Vec<usize> = vec.iter().map(|(x, _y)| *x).collect();
     v1.sort();
     for it in v1.iter() {
@@ -210,24 +231,35 @@ fn is_straight(vec: &Vec<(usize, usize)>) -> bool {
             return false;
         }
     }
-    if v1.last().unwrap() - v1.first().unwrap() == 4
-        || v1 == vec![1, 10, 11, 12, 13] {
+    if v1.last().unwrap() - v1.first().unwrap() == 4 {
+        return true;
+    }else if v1 == vec![1,10,11,12,13] {
+        for i in vec.iter_mut() {
+            if i.0 == 1_usize {
+                *i = (14,i.1);
+            }
+        }
         return true;
     }
     false
 }
 
-fn is_three_of_a_kind(vec: &Vec<(usize, usize)>) -> bool {
+fn is_three_of_a_kind(vec: &mut Vec<(usize, usize)>) -> bool {
     let v1: Vec<usize> = vec.iter().map(|(x, _y)| *x).collect();
     for i in v1.iter() {
         if v1.iter().filter(|&x| x == i).count() == 3 {
+            for i in vec.iter_mut() {
+                if i.0 == 1_usize {
+                    *i = (14,i.1);
+                }
+            }
             return true;
         }
     }
     false
 }
 
-fn is_tow_pair(vec: &Vec<(usize, usize)>) -> bool {
+fn is_tow_pair(vec: &mut Vec<(usize, usize)>) -> bool {
     let v1: Vec<usize> = vec.iter().map(|(x, _y)| *x).collect();
     let mut rt = vec![];
     for i in v1.iter() {
@@ -235,13 +267,25 @@ fn is_tow_pair(vec: &Vec<(usize, usize)>) -> bool {
             rt.push(*i);
         }
     }
+    if rt.len() == 4 {
+        for i in vec.iter_mut() {
+            if i.0 == 1_usize {
+                *i = (14,i.1);
+            }
+        }
+    }
     rt.len() == 4
 }
 
-fn is_one_pair(vec: &Vec<(usize, usize)>) -> bool {
+fn is_one_pair(vec: &mut Vec<(usize, usize)>) -> bool {
     let v1: Vec<usize> = vec.iter().map(|(x, _y)| *x).collect();
     for i in v1.iter() {
         if v1.iter().filter(|&x| x == i).count() == 2 {
+            for i in vec.iter_mut() {
+                if i.0 == 1_usize {
+                    *i = (14,i.1);
+                }
+            }
             return true;
         }
     }
